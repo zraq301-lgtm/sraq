@@ -1,0 +1,39 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/swing.html",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/insight.html",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/health.html",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/vr-world.html",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/videos.html",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/notifications.html",
+      "destination": "/index.html"
+    }
+  ]
+}

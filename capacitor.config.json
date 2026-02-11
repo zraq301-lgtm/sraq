@@ -1,0 +1,9 @@
+{
+  "appId": "com.roqa.app",
+  "appName": "raqqa",
+  "webDir": "dist_web", 
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
