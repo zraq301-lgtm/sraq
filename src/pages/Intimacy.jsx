@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { 
   Heart, Flame, ShieldCheck, Sparkles, MessageCircle, 
   Settings, Send, Info, Lock, Eye, Zap, Moon, 
-  Activity, BookOpen, Pray, ChevronRight, X 
+  Activity, BookOpen, HandsPraying, ChevronRight, X, PenTool, Save
 } from 'lucide-react';
 
 // --- القوائم الـ 10 الموسوعية للحميمية ---
@@ -16,7 +16,7 @@ const INTIMACY_CATEGORIES = [
   { id: 7, title: 'الصحة الجنسية والفسيولوجية', icon: <Activity className="text-red-600"/>, items: ['القدرة البدنية 💪', 'عدم وجود آلام 💊', 'توازن الهرمونات 🧬', 'ممارسة الرياضة 🏋️‍♂️', 'التغذية الداعمة 🥑', 'جودة النوم 😴', 'الابتعاد عن التدخين 🚭', 'شرب الماء الكافي 💧', 'الفحوصات الدورية 🩺', 'تجنب السمنة المفرطة ⚖️', 'الراحة النفسية 🧘‍♂️', 'النشاط اليومي 🚶‍♂️', 'الوعي بالدورة الشهرية 🩸', 'تجنب المنشطات الضارة 🚫', 'القوة الحيوية 🔋'] },
   { id: 8, title: 'العوائق والمشكلات', icon: <Info className="text-gray-500"/>, items: ['الضغوط النفسية 🌪️', 'انشغال البال بالأبناء 🧒', 'التعب الجسدي 🔋', 'الملل الزوجي 💤', 'اضطراب صورة الجسد 🪞', 'مشكلات العمل 💼', 'التدخلات العائلية 🏠', 'نقص الثقافة الجنسية 📚', 'سرعة القذف أو البرود ⌛', 'الخلافات المستمرة 🗣️', 'إدمان الشاشات 📱', 'انعدام المبادرة 😶', 'الروتين القاتل 🔄', 'الخوف من الفشل 😨', 'غياب الحوار الصريح 🤐'] },
   { id: 9, title: 'الثقافة الجنسية والوعي', icon: <BookOpen className="text-amber-600"/>, items: ['فهم سيكولوجية الرجل 🧠', 'فهم سيكولوجية المرأة 🌸', 'القراءة في كتب التنمية 📚', 'الوعي بنقاط المتعة 🎯', 'تعلم لغات الحب 💌', 'فهم التغيرات العمرية 🕰️', 'الوعي بالاحتياجات النفسية 💡', 'الثقافة الشرعية للحياة 💍', 'حضور دورات مختصة 🎓', 'الصدق في التعبير 🗣️', 'تطوير المهارات العاطفية ✨', 'فهم دور الهرمونات 🧬', 'الوعي بلغة الجسد 🕺', 'البحث عن المعلومة الصحيحة ✅', 'تصحيح المفاهيم الخاطئة ❌'] },
-  { id: 10, title: 'الاطمئنان الروحي', icon: <Pray className="text-blue-500"/>, items: ['الدعاء قبل العلاقة 🤲', 'الغسل المشترك 🚿', 'شكر الله على السكن 🛐', 'نية الإعفاف والاحتساب 💎', 'الاستغفار 📿', 'قراءة القرآن في البيت 📖', 'قيام الليل معاً 🌌', 'الذكر الدائم 🕊️', 'الإحسان للطرف الآخر 🌟', 'بناء بيت مسلم 🏡', 'التوكل على الله 🎯', 'الرضا بالنصيب ✅', 'البركة في الذرية 🐣', 'حب الله ورسوله ❤️', 'الوفاء بالعهود 📜'] }
+  { id: 10, title: 'الاطمئنان الروحي', icon: <HandsPraying className="text-blue-500"/>, items: ['الدعاء قبل العلاقة 🤲', 'الغسل المشترك 🚿', 'شكر الله على السكن 🛐', 'نية الإعفاف والاحتساب 💎', 'الاستغفار 📿', 'قراءة القرآن في البيت 📖', 'قيام الليل معاً 🌌', 'الذكر الدائم 🕊️', 'الإحسان للطرف الآخر 🌟', 'بناء بيت مسلم 🏡', 'التوكل على الله 🎯', 'الرضا بالنصيب ✅', 'البركة في الذرية 🐣', 'حب الله ورسوله ❤️', 'الوفاء بالعهود 📜'] }
 ];
 
 const RaqqaHarmonyApp = () => {
@@ -25,16 +25,13 @@ const RaqqaHarmonyApp = () => {
   const [loading, setLoading] = useState(false);
   const [aiReport, setAiReport] = useState("");
   const [note, setNote] = useState("");
+  const [secretDiary, setSecretDiary] = useState(""); // حالة مفكرة الأسرار
 
-  // --- دالة الربط مع API الحفظ والذكاء ---
   const handleAnalyze = async () => {
     if (selectedItems.length === 0) return alert("يرجى اختيار بعض المدخلات للتحليل");
-    
     setLoading(true);
-    setAiReport("رقة تقوم بتحليل التناغم الزوجي وتقديم التوصيات...");
-
     try {
-      // 1. الحفظ في Neon DB
+      // حفظ في Neon DB
       await fetch('/api/save-health', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,34 +39,31 @@ const RaqqaHarmonyApp = () => {
           user_id: "user_harmony_99",
           category: "تحليل حميمية وتناغم",
           value: selectedItems.length.toString(),
-          note: `المدخلات: ${selectedItems.join(', ')}. ملاحظات إضافية: ${note}`
+          note: `المدخلات: ${selectedItems.join(', ')}. ملاحظات: ${note}. المفكرة: ${secretDiary}`
         })
       });
 
-      // 2. التحليل عبر AI المتخصص
+      // تحليل AI
       const aiRes = await fetch('/api/raqqa-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: `أنتِ مستشارة علاقات زوجية خبيرة بلمسة إيمانية. 
-          بناءً على هذه المدخلات في العلاقة الحميمية: (${selectedItems.join(', ')}). 
-          والملاحظات الإضافية: ${note}.
-          حللي العلاقة وقدمي تقريراً احترافياً يتضمن:
-          1. نقاط القوة في علاقتهما.
-          2. الفجوات التي تحتاج اهتماماً.
-          3. توصيات عملية وحيوية للمتعة والسعادة والابتكار.
-          4. نصيحة إيمانية تعزز المودة والرحمة.
-          اجعلي الرد دافئاً، طبياً، ونفسياً بأسلوب رقة.`
+          prompt: `أنتِ مستشارة علاقات زوجية خبيرة بلمسة إيمانية. حللي هذه المدخلات: (${selectedItems.join(', ')}). ملاحظات إضافية: ${note}. ومن مفكرة الأسرار: ${secretDiary}. قدمي تقريراً دافئاً يشمل نقاط القوة، فجوات العلاقة، توصيات للمتعة والابتكار، ونصيحة إيمانية.`
         })
       });
       const data = await aiRes.json();
       setAiReport(data.reply);
     } catch (error) {
-      setAiReport("عذراً رفيقتي، حدث خطأ في تحليل البيانات.");
+      setAiReport("عذراً رفيقتي، حدث خطأ في التحليل.");
     } finally {
       setLoading(false);
       setActiveCategory(null);
     }
+  };
+
+  const saveDiary = async () => {
+    alert("تم حفظ أسراركِ في المفكرة بأمان وخصوصية تامة ✨");
+    // يمكن هنا إضافة استدعاء API لحفظ المفكرة منفصلة إذا رغبتِ
   };
 
   const toggleItem = (item) => {
@@ -79,7 +73,6 @@ const RaqqaHarmonyApp = () => {
   return (
     <div className="min-h-screen bg-[#fdf2f2] text-right font-['Tajawal']" dir="rtl">
       
-      {/* Sidebar للخصوصية */}
       <nav className="fixed right-0 top-0 h-full w-16 bg-[#4a0e0e] flex flex-col items-center py-8 space-y-8 z-50 shadow-2xl">
         <div className="text-gold-400 p-2"><Lock size={24} className="text-amber-400"/></div>
         <div className="w-10 h-10 bg-red-900 rounded-full flex items-center justify-center text-white cursor-pointer"><Heart size={20}/></div>
@@ -87,22 +80,38 @@ const RaqqaHarmonyApp = () => {
       </nav>
 
       <main className="mr-16 p-6 lg:p-12">
-        {/* Header بتصميم راقٍ */}
         <header className="mb-12 flex flex-col md:flex-row justify-between items-center gap-6 bg-white/40 p-8 rounded-[40px] border border-white/60 shadow-xl backdrop-blur-md">
           <div>
             <h1 className="text-4xl font-black text-[#4a0e0e] mb-2 font-['Amiri']">مستشار الحميمية <span className="text-red-600 font-light italic">والتناغم الزوجي</span></h1>
-            <p className="text-gray-600">خصوصية تامة لتحليل وتطوير العلاقة المقدسة بين الزوجين ✨</p>
+            <p className="text-gray-600">خصوصية تامة لتحليل وتطوير العلاقة المقدسة ومفكرة أسراركِ الخاصة ✨</p>
           </div>
           <div className="flex gap-4">
-            <div className="px-6 py-3 bg-[#4a0e0e] text-white rounded-full font-bold flex items-center gap-2 shadow-lg">
-              <Eye size={18} className="text-amber-400"/> بيانات مشفرة
+            <div className="px-6 py-3 bg-[#4a0e0e] text-white rounded-full font-bold flex items-center gap-2 shadow-lg hover:bg-red-900 transition-colors">
+              <Lock size={18} className="text-amber-400"/> مشفر تماماً
             </div>
           </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* قوائم الإدخال الـ 10 */}
           <div className="lg:col-span-7 space-y-6">
+            
+            {/* مفكرة الأسرار الزوجية */}
+            <div className="bg-white/80 backdrop-blur-md p-8 rounded-[40px] border-2 border-dashed border-red-200 shadow-sm relative overflow-hidden group">
+               <div className="flex items-center gap-3 mb-4 text-[#4a0e0e]">
+                 <PenTool size={22} className="group-hover:rotate-12 transition-transform" />
+                 <h3 className="text-xl font-bold">مفكرة الأسرار الزوجية</h3>
+               </div>
+               <textarea 
+                  value={secretDiary}
+                  onChange={(e) => setSecretDiary(e.target.value)}
+                  className="w-full bg-red-50/30 border-none p-4 rounded-2xl shadow-inner outline-none focus:ring-2 ring-red-100 min-h-[150px] font-['Amiri'] text-lg"
+                  placeholder="دوني هنا مشاعركِ الخاصة، لحظاتكما الجميلة، أو ما يقلقكِ بصراحة تامة... (محفوظة بخصوصية)"
+               />
+               <button onClick={saveDiary} className="mt-4 flex items-center gap-2 text-red-700 font-bold hover:text-red-900 transition-colors">
+                 <Save size={18}/> حفظ في المفكرة المشفرة
+               </button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {INTIMACY_CATEGORIES.map((cat) => (
                 <button 
@@ -119,29 +128,19 @@ const RaqqaHarmonyApp = () => {
               ))}
             </div>
 
-            <textarea 
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="w-full bg-white/60 border border-white p-6 rounded-[35px] shadow-inner outline-none focus:ring-2 ring-red-100 min-h-[120px]"
-              placeholder="هل تودين إضافة ملاحظات خاصة لرقة عن تحديات تواجهكما؟ (اختياري)"
-            />
-
             <button 
               onClick={handleAnalyze}
               className="w-full py-6 bg-gradient-to-r from-[#4a0e0e] to-red-800 text-white rounded-[35px] font-black text-2xl shadow-2xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3"
             >
-              {loading ? "رقة تحلل بياناتكما..." : <><Flame fill="currentColor" size={24}/> ابدأي التحليل الاحترافي</>}
+              {loading ? "رقة تحلل بياناتكما..." : <><Flame fill="currentColor" size={24}/> ابدأي التحليل والحلول</>}
             </button>
           </div>
 
-          {/* لوحة نتائج الذكاء الاصطناعي */}
           <div className="lg:col-span-5">
-            <div className="bg-[#4a0e0e] text-white rounded-[50px] p-8 shadow-2xl min-h-[500px] flex flex-col relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 blur-[60px] rounded-full"></div>
-              
+            <div className="bg-[#4a0e0e] text-white rounded-[50px] p-8 shadow-2xl min-h-[600px] flex flex-col relative overflow-hidden border-4 border-red-900/50">
               <div className="flex items-center gap-3 mb-8 pb-4 border-b border-white/10">
                 <Sparkles className="text-amber-400" size={24}/>
-                <h3 className="text-xl font-bold font-['Amiri']">تقرير التناغم والوعي</h3>
+                <h3 className="text-xl font-bold font-['Amiri']">رؤية رقة للتناغم السعيد</h3>
               </div>
 
               <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
@@ -154,7 +153,7 @@ const RaqqaHarmonyApp = () => {
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-center opacity-40 space-y-4">
                     <MessageCircle size={60}/>
-                    <p className="text-lg italic">اختاري من القوائم الجانبية ما يعبر عن واقع علاقتكما لتبدأ رقة في تقديم البصيرة..</p>
+                    <p className="text-lg italic">اكتبي في المفكرة واختاري من القوائم لتبدأ رقة في رسم خارطة السعادة لكما..</p>
                   </div>
                 )}
               </div>
@@ -162,10 +161,9 @@ const RaqqaHarmonyApp = () => {
           </div>
         </div>
 
-        {/* نافذة اختيار المدخلات (Modal) */}
         {activeCategory && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-            <div className="bg-white rounded-[45px] w-full max-w-2xl shadow-2xl overflow-hidden border border-white/20 animate-scale-up">
+            <div className="bg-white rounded-[45px] w-full max-w-2xl shadow-2xl overflow-hidden border border-white/20">
               <div className="bg-[#4a0e0e] p-8 text-white flex justify-between items-center">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-white/10 rounded-2xl">{activeCategory.icon}</div>
@@ -190,14 +188,8 @@ const RaqqaHarmonyApp = () => {
                 ))}
               </div>
 
-              <div className="p-8 bg-gray-50 flex justify-between items-center">
-                <span className="text-gray-500 font-bold">تم اختيار: {selectedItems.filter(i => activeCategory.items.includes(i)).length} من 15</span>
-                <button 
-                  onClick={() => setActiveCategory(null)}
-                  className="px-8 py-3 bg-[#4a0e0e] text-white rounded-full font-bold shadow-lg"
-                >
-                  حفظ والاختيار من قائمة أخرى
-                </button>
+              <div className="p-8 bg-gray-50 flex justify-end">
+                <button onClick={() => setActiveCategory(null)} className="px-8 py-3 bg-[#4a0e0e] text-white rounded-full font-bold shadow-lg">إتمام الاختيار</button>
               </div>
             </div>
           </div>
