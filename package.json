@@ -6,25 +6,39 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "cap:sync": "npx cap sync"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
-    "sweetalert2": "^11.10.5",
-    "lucide-react": "^0.344.0",
+    "lucide-react": "^0.475.0",
     "framer-motion": "^11.0.8",
     "axios": "^1.6.7",
+    "sweetalert2": "^11.10.5",
     "clsx": "^2.1.0",
-    "tailwind-merge": "^2.2.1"
+    "tailwind-merge": "^2.2.1",
+    "@capacitor/core": "^5.7.0",
+    "@capacitor/android": "^5.7.0",
+    "@capacitor/ios": "^5.7.0",
+    "@capacitor/app": "^5.0.7",
+    "@capacitor/haptics": "^5.0.7",
+    "@capacitor/keyboard": "^5.0.8",
+    "@capacitor/status-bar": "^5.0.7"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",
+    "@capacitor/cli": "^5.7.0",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "vite": "^5.0.0",
-    "terser": "^5.27.0"
+    "terser": "^5.27.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5"
   }
 }
