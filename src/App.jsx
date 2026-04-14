@@ -1,139 +1,81 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, Link, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { App as CapApp } from '@capacitor/app'; // إضافة مستورد Capacitor
-
-[cite_start]// استيراد المكونات والصفحات [cite: 2, 3]
-import Health from './pages/Health';
-import Feelings from './pages/Feelings';
-import Intimacy from './pages/Intimacy';
-import Swing from './pages/Swing';
-import Insight from './pages/Insight';
-import Videos from './pages/Videos';
-import VirtualWorld from './pages/VirtualWorld';
-
-[cite_start]// استيراد الأيقونات من المرجع الرئيسي المعتمد [cite: 4]
-import { 
-  Heart, 
-  Sparkles, 
-  Video, 
-  Activity, 
-  Flower2, 
-  Gem, 
-  MessageCircle 
-} from 'lucide-react';
-
-[cite_start]import './App.css'; [cite: 5]
-
-[cite_start]// وظيفة لضمان صعود الصفحة للأعلى عند التنقل [cite: 4, 6]
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-  return null;
-}
+import React, { useEffect, useState } from 'react';
+import { client } from './lib/sanity'; // ملف الربط اللي عملناه
+import { ShoppingCart, ShoppingBag } from 'lucide-react';
 
 function App() {
-  // التعديل المضاف لإدارة التحديثات وزر الرجوع في الأندرويد
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // جلب البيانات من Sanity عند فتح الصفحة
   useEffect(() => {
-    // مراقبة حالة التطبيق للتأكد من تحديث المحتوى عند الفتح
-    const checkUpdates = async () => {
-      // بما أن capacitor.config.json موجه للرابط الخارجي، سيعمل هذا السطر للتأكيد
-      console.log("التطبيق متصل الآن بمصدر التحديثات من جيت هب");
+    const fetchProducts = async () => {
+      try {
+        const query = '*[_type == "product"]'; // استعلام لجلب كل المنتجات
+        const data = await client.fetch(query);
+        setProducts(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("خطأ في جلب البيانات:", error);
+        setLoading(false);
+      }
     };
 
-    checkUpdates();
-
-    // العودة للصفحة السابقة عند ضغط زر الرجوع في الأندرويد لضمان تجربة مستخدم سلسة
-    CapApp.addListener('backButton', ({ canGoBack }) => {
-      if (!canGoBack) {
-        CapApp.exitApp();
-      } else {
-        window.history.back();
-      }
-    });
+    fetchProducts();
   }, []);
 
+  if (loading) return <div className="flex justify-center items-center h-screen">جاري تحميل المنتجات...</div>;
+
   return (
-    <Router>
-      <ScrollToTop />
-      <div className="app-container">
-        
-        [cite_start]{/* القسم العلوي: مكتبة الفيديوهات وعالم رقة [cite: 6, 7, 8, 9, 10] */}
-        <header className="top-sticky-menu">
-          <div className="top-cards-container">
-            <Link to="/videos" className="top-card">
-              <span className="card-icon"><Video size={24} /></span>
-              <div className="card-text">
-                <span className="card-label">مكتبة الفيديوهات</span>
-                <span className="card-sub">video library</span>
-              </div>
-            </Link>
-     
-            <Link to="/virtual-world" className="top-card">
-              <span className="card-icon"><Gem size={24} /></span>
-              <div className="card-text">
-                <span className="card-label">عالم رقة الافتراضي</span>
-                <span className="card-sub">virtual world</span>
-              </div>
-            </Link>
+    <div className="bg-gray-50 min-h-screen dir-rtl" dir="rtl">
+      {/* الشريط العلوي */}
+      <nav className="bg-white shadow-sm p-4 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
+            <ShoppingBag /> متجر الرقة
+          </h1>
+          <div className="relative">
+            <ShoppingCart className="text-gray-600 cursor-pointer" />
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">0</span>
           </div>
-        </header>
+        </div>
+      </nav>
+
+      {/* عرض المنتجات */}
+      <main className="max-w-6xl mx-auto p-6">
+        <h2 className="text-xl font-semibold mb-6">أحدث المنتجات</h2>
         
-        [cite_start]{/* المحتوى المتغير (المسارات السبعة) [cite: 11, 12] */}
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Navigate to="/health" />} />
-            <Route path="/health" element={<Health />} />
-            <Route path="/feelings" element={<Feelings />} />
-            <Route path="/intimacy" element={<Intimacy />} />
-            <Route path="/swing-forum" element={<Swing />} />
-            <Route path="/insight" element={<Insight />} />
-            <Route path="/videos" element={<Videos />} />
-            <Route path="/virtual-world" element={<VirtualWorld />} />
-          </Routes>
-        </main>
-
-        [cite_start]{/* القسم السفلي الثابت: الأقسام الخمسة [cite: 13, 14, 15, 16, 17] */}
-        <nav className="bottom-sticky-menu">
-          <div className="nav-grid">
-            <Link to="/feelings" className="nav-item">
-              <span className="nav-icon"><Heart size={20} /></span>
-              <span className="nav-label">المشاعر</span>
-              <span className="nav-sub">feelings</span>
-            </Link>
-
-            <Link to="/intimacy" className="nav-item">
-              <span className="nav-icon"><Flower2 size={20} /></span>
-              <span className="nav-label">الحميمية</span>
-              <span className="nav-sub">intimacy</span>
-            </Link>
-            
-            [cite_start]{/* أيقونة "صحتك" المركزية [cite: 14, 15] */}
-            <Link to="/health" className="nav-item center-action">
-              <div className="center-circle">
-                <span className="nav-icon large"><Activity size={28} /></span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <div key={product._id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              {/* صورة المنتج */}
+              <div className="h-48 bg-gray-200">
+                {product.image && (
+                  <img 
+                    src={product.image.url} // تأكد من ضبط الرابط في Sanity
+                    alt={product.title} 
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
-              <span className="nav-label bold">صحتك</span>
-              <span className="nav-sub">health</span>
-            </Link>
-
-            <Link to="/swing-forum" className="nav-item">
-              <span className="nav-icon"><MessageCircle size={20} /></span>
-              <span className="nav-label">الأرجوحة</span>
-              <span className="nav-sub">swing forum</span>
-            </Link>
-        
-            <Link to="/insight" className="nav-item">
-              <span className="nav-icon"><Sparkles size={20} /></span>
-              <span className="nav-label">القفقة</span>
-              <span className="nav-sub">insight</span>
-            </Link>
-          </div>
-        </nav>
-      </div>
-    </Router>
+              
+              {/* تفاصيل المنتج */}
+              <div className="p-4">
+                <h3 className="font-bold text-gray-800 text-lg mb-1">{product.title}</h3>
+                <p className="text-gray-500 text-sm mb-3 line-clamp-2">{product.description}</p>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-blue-600 font-bold">{product.price} ج.م</span>
+                  <button className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                    إضافة للسلة
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
   );
 }
 
-[cite_start]export default App; [cite: 18]
+export default App;
