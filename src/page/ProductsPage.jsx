@@ -1,137 +1,137 @@
 import React from 'react';
 import productsData from '../data/products.json';
-import { ShoppingBag, Star, ExternalLink, Box } from 'lucide-react';
+import { ShoppingBag, Star, ArrowUpLeft, Tag, ShoppingCart } from 'lucide-react';
 
 const ProductsPage = () => {
-  // دالة متطورة لإصلاح روابط الصور المكسورة في AliExpress
-  const fixImageUrl = (url) => {
-    if (!url) return "https://via.placeholder.com/300?text=No+Image";
-    // إزالة أي مسافات أو رموز غريبة وإضافة البروتوكول
-    let cleanedUrl = url.trim();
-    if (cleanedUrl.startsWith('//')) {
-      cleanedUrl = 'https:' + cleanedUrl;
-    } else if (!cleanedUrl.startsWith('http')) {
-      cleanedUrl = 'https://' + cleanedUrl;
-    }
-    return cleanedUrl;
+  // دالة متطورة لضمان عمل صور AliExpress
+  const getCleanImageUrl = (url) => {
+    if (!url) return "https://via.placeholder.com/400?text=No+Image";
+    let link = url.trim();
+    // إذا كان الرابط يبدأ بـ // أضف https:
+    if (link.startsWith('//')) link = 'https:' + link;
+    // التأكد من أن الرابط لا يحتوي على مسافات زائدة
+    return link;
   };
 
   return (
-    <div className="min-h-screen bg-fixed text-right pb-12 font-sans" dir="rtl" 
-         style={{ 
-           backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // خلفية ملونة لإظهار تأثير الزجاج
-           minHeight: '100vh' 
-         }}>
-      
+    <div className="min-h-screen bg-[#0f172a] text-right pb-20 font-sans" dir="rtl">
+      {/* CSS مخصص لضبط عرض الكروت وحجم الصور */}
       <style>{`
-        .glass-card {
-          background: rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(15px);
-          -webkit-backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 24px;
-          transition: all 0.3s ease;
+        .main-container {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 20px;
         }
-        .glass-card:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: translateY(-5px);
-          border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-        .product-grid {
+        .products-grid {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 15px;
-          padding: 15px;
+          /* جعل الكروت عريضة وواضحة */
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+          gap: 25px;
         }
-        @media (min-width: 768px) {
-          .product-grid {
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 25px;
+        @media (max-width: 640px) {
+          .products-grid {
+            grid-template-columns: repeat(1, 1fr); /* كارد واحد عريض جداً في الموبايل */
           }
         }
-        .img-container {
-          width: 100%;
-          aspect-ratio: 1/1;
-          background: rgba(255, 255, 255, 0.5);
-          border-radius: 20px;
+        .clean-transparent-card {
+          background: rgba(255, 255, 255, 0.03); /* شفافية نقية بدون ضباب */
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 28px;
+          transition: all 0.4s ease;
           overflow: hidden;
-          display: flex;
-          align-items: center;
-          justify-content: center;
         }
-        .img-container img {
+        .clean-transparent-card:hover {
+          background: rgba(255, 255, 255, 0.07);
+          border-color: rgba(249, 115, 22, 0.4);
+          transform: translateY(-10px);
+        }
+        .fixed-img-container {
+          width: 100%;
+          height: 280px; /* زيادة حجم الصورة */
+          background: #f8fafc;
+          position: relative;
+        }
+        .fixed-img-container img {
           width: 100%;
           height: 100%;
-          object-fit: contain; /* لضمان عدم قص أجزاء المنتج */
+          object-fit: contain; /* عرض المنتج كاملاً دون قص */
+          padding: 10px;
         }
-        .title-line {
+        .title-style {
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          height: 2.6rem;
-          color: white;
-          font-weight: bold;
-          font-size: 0.85rem;
-          margin-top: 10px;
-          text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+          height: 3rem;
+          line-height: 1.5rem;
+          font-weight: 800;
+          color: #f1f5f9;
+          margin: 15px 0;
         }
       `}</style>
 
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 p-4">
-        <div className="max-w-7xl mx-auto glass-card py-3 px-6 flex justify-between items-center">
+      {/* Navbar */}
+      <nav className="border-b border-white/10 bg-[#0f172a]/80 sticky top-0 z-50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <ShoppingBag className="text-white" size={24} />
+            <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+              <ShoppingBag className="text-white" size={26} />
             </div>
-            <h1 className="text-xl font-black text-white">رقة ستور</h1>
+            <h1 className="text-2xl font-black text-white tracking-tight">رقة ستور</h1>
           </div>
-          <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full border border-white/30">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-            <span className="text-xs font-bold text-white">متصل الآن</span>
+          <div className="bg-orange-500/10 text-orange-400 px-4 py-2 rounded-full border border-orange-500/20 text-sm font-bold">
+             متاح للطلب الآن
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto mt-6 px-4">
-        <div className="product-grid">
+      <main className="main-container">
+        <header className="mb-12">
+          <h2 className="text-4xl font-black text-white mb-3">قائمة المنتجات</h2>
+          <div className="h-1.5 w-24 bg-orange-500 rounded-full"></div>
+        </header>
+
+        <div className="products-grid">
           {productsData.map((item) => (
-            <div key={item.id} className="glass-card p-3 flex flex-col h-full">
+            <div key={item.id} className="clean-transparent-card group">
               
               {/* Image Section */}
-              <div className="img-container shadow-inner">
+              <div className="fixed-img-container">
                 <img 
-                  src={fixImageUrl(item.image_url)} 
+                  src={getCleanImageUrl(item.image_url)} 
                   alt={item.name}
-                  onError={(e) => { e.target.src = "https://via.placeholder.com/300?text=Image+Error"; }}
+                  loading="lazy"
+                  onError={(e) => {
+                    e.target.onerror = null; 
+                    e.target.src = "https://via.placeholder.com/400?text=Image+Not+Found";
+                  }}
                 />
+                <div className="absolute bottom-4 right-4 bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg">
+                  {item.category}
+                </div>
               </div>
 
-              {/* Content Section */}
-              <div className="flex flex-col flex-grow mt-3">
-                <div className="flex justify-between items-center">
-                  <span className="bg-white/30 text-white text-[9px] px-2 py-0.5 rounded-md font-bold backdrop-blur-sm border border-white/20">
-                    {item.category}
-                  </span>
-                  <div className="flex text-yellow-300">
-                    <Star size={10} fill="currentColor" />
-                    <Star size={10} fill="currentColor" />
-                    <Star size={10} fill="currentColor" />
-                  </div>
+              {/* Body Section */}
+              <div className="p-6">
+                <div className="flex items-center gap-1 text-yellow-500 mb-2">
+                  <Star size={14} fill="currentColor" />
+                  <Star size={14} fill="currentColor" />
+                  <Star size={14} fill="currentColor" />
+                  <Star size={14} fill="currentColor" />
+                  <Star size={14} fill="currentColor" />
+                  <span className="text-gray-400 text-xs mr-2">(5.0)</span>
                 </div>
 
-                <h3 className="title-line">
+                <h3 className="title-style text-lg">
                   {item.name}
                 </h3>
 
-                <div className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between">
-                  <div className="text-white">
-                    <span className="text-[10px] opacity-70 block mb-0.5">السعر</span>
+                <div className="flex items-center justify-between mt-6 pt-5 border-t border-white/5">
+                  <div>
+                    <span className="text-gray-400 text-[11px] font-bold block mb-1">السعر الحصري</span>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black">{item.price}</span>
-                      <span className="text-[10px] font-medium opacity-80">{item.currency}</span>
+                      <span className="text-3xl font-black text-white">{item.price}</span>
+                      <span className="text-sm font-bold text-orange-500">{item.currency}</span>
                     </div>
                   </div>
 
@@ -139,9 +139,9 @@ const ProductsPage = () => {
                     href={item.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-10 h-10 bg-white text-indigo-600 rounded-xl flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                    className="w-14 h-14 bg-white hover:bg-orange-500 text-black hover:text-white rounded-2xl flex items-center justify-center transition-all duration-300 shadow-xl group-hover:scale-110"
                   >
-                    <ExternalLink size={18} />
+                    <ShoppingCart size={24} />
                   </a>
                 </div>
               </div>
