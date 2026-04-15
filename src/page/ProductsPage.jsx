@@ -1,133 +1,108 @@
 import React, { useEffect, useState } from 'react';
 import Papa from 'papaparse';
-import { ShoppingCart, ExternalLink, Tag, Store, AlertCircle } from 'lucide-react';
+import { ShoppingBag, ExternalLink, Percent, store, ArrowUpRight, Loader2 } from 'lucide-react';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // استدعاء الملف مباشرة من مجلد public
-    // في Vite، الملفات في public يتم الوصول إليها عبر المسار الأساسي '/'
     fetch('/Ali_01.csv')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('لم يتم العثور على ملف المنتجات في public/Ali_01.csv');
-        }
-        return response.text();
-      })
-      .then((csvText) => {
-        Papa.parse(csvText, {
-          header: true,
-          delimiter: "|", // الفاصل المستخدم في ملفك بناءً على التحليل
+      .then(res => res.text())
+      .then(csvData => {
+        Papa.parse(csvData, {
+          delimiter: "|", // الفاصل المستخدم في ملفك
           skipEmptyLines: true,
           complete: (results) => {
-            if (results.data && results.data.length > 0) {
-              // تنظيف البيانات من المسافات المخفية في أسماء الأعمدة
-              const cleanData = results.data.map(item => {
-                const newItem = {};
-                Object.keys(item).forEach(key => {
-                  const cleanKey = key.trim();
-                  newItem[cleanKey] = item[key]?.trim();
-                });
-                return newItem;
-              });
-              setProducts(cleanData);
-            }
-            setLoading(false);
-          },
-          error: (err) => {
-            setError("خطأ في تحليل بيانات الملف");
+            // تحويل المصفوفة الناتجة إلى كائنات بناءً على ترتيب ملفك
+            const mappedData = results.data.map(row => ({
+              commission: row[0]?.trim(), // العمود الأول: العمولة
+              price: row[1]?.trim(),      // العمود الثاني: السعر
+              storeId: row[2]?.trim(),    // العمود الثالث: معرف المتجر
+              image: row[3]?.trim()       // العمود الرابع: رابط الصورة
+            }));
+            setProducts(mappedData);
             setLoading(false);
           }
         });
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
       });
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex h-screen flex-col items-center justify-center bg-gray-50 p-4 text-center">
-        <AlertCircle className="text-red-500 mb-4" size={48} />
-        <h2 className="text-xl font-bold text-gray-800">حدث خطأ</h2>
-        <p className="text-gray-600 mt-2">{error}</p>
-        <p className="text-sm text-gray-400 mt-4">تأكد من وجود الملف في المسار: public/Ali_01.csv</p>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+      <Loader2 className="animate-spin text-orange-600 mb-4" size={50} />
+      <p className="text-slate-600 font-medium animate-pulse">جاري تحضير المنتجات...</p>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12" dir="rtl">
-      {/* Header */}
-      <header className="bg-white shadow-sm mb-8 sticky top-0 z-10 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
-          <h1 className="text-2xl font-black text-gray-800 flex items-center gap-2">
-            <ShoppingCart className="text-orange-500" />
-            متجر رقة
-          </h1>
-          <div className="bg-orange-100 text-orange-700 px-4 py-1 rounded-full text-sm font-bold">
-            {products.length} منتج متوفر
+    <div className="min-h-screen bg-[#f8fafc] pb-20" dir="rtl">
+      {/* Header القسم العلوي */}
+      <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="bg-orange-600 p-2 rounded-xl shadow-lg shadow-orange-200">
+              <ShoppingBag className="text-white" size={24} />
+            </div>
+            <h1 className="text-2xl font-black text-slate-800 tracking-tight">متجر سراق</h1>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full border border-slate-200">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </span>
+            <span className="text-sm font-bold text-slate-700">{products.length} منتج نشط</span>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Main Content محتوى المتجر */}
+      <main className="max-w-7xl mx-auto px-6 mt-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {products.map((product, index) => (
-            <div 
-              key={index} 
-              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
-            >
-              {/* Product Image Area */}
-              <div className="relative aspect-square overflow-hidden bg-gray-50">
+            <div key={index} className="group relative bg-white rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+              
+              {/* صورة المنتج */}
+              <div className="relative h-72 overflow-hidden">
                 <img 
-                  src={product['الصورة'] || 'https://via.placeholder.com/300?text=No+Image'} 
-                  alt="منتج"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  onError={(e) => { e.target.src = 'https://via.placeholder.com/300?text=Image+Error'; }}
+                  src={product.image} 
+                  alt="Product" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="absolute top-3 right-3">
-                  <span className="bg-white/90 backdrop-blur-sm text-green-600 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1">
-                    <Tag size={12} />
-                    عمولة: {product['العمولة'] || '%0'}
-                  </span>
+                <div className="absolute top-4 right-4">
+                  <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-2xl shadow-sm flex items-center gap-1.5 border border-white">
+                    <div className="bg-orange-600 rounded-full p-1 text-white">
+                      <Percent size={10} strokeWidth={4} />
+                    </div>
+                    <span className="text-xs font-black text-slate-800">عمولة {product.commission}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Details */}
-              <div className="p-5">
-                <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
-                  <Store size={14} />
-                  <span>متجر: {product['معرف المتجر'] || 'غير معروف'}</span>
+              {/* تفاصيل المنتج */}
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                    <store size={14} />
+                  </div>
+                  <span className="text-xs font-medium text-slate-500 tracking-wide uppercase">متجر: {product.storeId}</span>
                 </div>
-                
-                <h3 className="text-gray-800 font-bold text-md mb-4 line-clamp-2 h-12">
-                   منتج رقم {index + 1} - عرض مميز
+
+                <h3 className="text-lg font-bold text-slate-800 mb-5 leading-snug group-hover:text-orange-600 transition-colors">
+                  منتج عصري - {index + 1}
                 </h3>
 
-                <div className="flex items-center justify-between border-t pt-4">
+                <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                   <div>
-                    <p className="text-gray-400 text-xs mb-0.5">السعر</p>
-                    <p className="text-xl font-black text-gray-900 leading-none">
-                      {product['السعر'] || '0.00'} 
-                      <span className="text-xs font-normal text-gray-500 mr-1">ج.م</span>
-                    </p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">السعر الحالي</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-black text-slate-900">{product.price}</span>
+                      <span className="text-sm font-bold text-slate-500">ج.م</span>
+                    </div>
                   </div>
                   
-                  <button className="bg-orange-500 text-white p-3 rounded-xl hover:bg-orange-600 transition-colors shadow-lg shadow-orange-100">
-                    <ExternalLink size={20} />
+                  <button className="relative overflow-hidden bg-slate-900 text-white p-4 rounded-2xl transition-all duration-300 hover:bg-orange-600 hover:shadow-lg hover:shadow-orange-200 group/btn active:scale-95">
+                    <ArrowUpRight className="relative z-10 group-hover/btn:rotate-45 transition-transform duration-300" size={22} />
                   </button>
                 </div>
               </div>
