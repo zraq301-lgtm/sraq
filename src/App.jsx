@@ -1,39 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import Papa from 'papaparse';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ProductsPage from './page/ProductsPage'; // استيراد الصفحة من المسار الذي حددته
 
 function App() {
-  const [products, setProducts] = useState([]);
-
-  useEffect(() => {
-    // استدعاء ملف الـ CSV (تأكد من وضع الملف في مجلد public)
-    fetch('/Ali_01.csv')
-      .then(response => response.text())
-      .then(csvData => {
-        Papa.parse(csvData, {
-          header: true, // لتحويل أول سطر في الملف إلى مفاتيح (keys)
-          skipEmptyLines: true,
-          complete: (results) => {
-            setProducts(results.data);
-          },
-        });
-      });
-  }, []);
-
   return (
-    <div className="App" style={{ padding: '20px' }}>
-      <h1>قائمة المنتجات</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
-        {products.map((product, index) => (
-          <div key={index} style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '8px' }}>
-            {/* استبدل "اسم_العمود" بالأسماء الموجودة في ملفك فعلياً */}
-            <h3>{product['معرف المتجر']}</h3>
-            <p>العمولة: {product['العمولة']}</p>
-            {/* إذا كان هناك رابط صورة في الملف */}
-            {product['image_column'] && <img src={product['image_column']} alt="product" style={{width: '100%'}} />}
-          </div>
-        ))}
+    <Router>
+      <div className="App">
+        <Routes>
+          {/* تحويل المسار الرئيسي تلقائياً إلى صفحة المنتجات */}
+          <Route path="/" element={<Navigate to="/products" />} />
+          
+          {/* مسار صفحة المنتجات */}
+          <Route path="/products" element={<ProductsPage />} />
+
+          {/* يمكنك إضافة مسارات أخرى هنا لاحقاً */}
+          {/* <Route path="/about" element={<AboutPage />} /> */}
+          
+          {/* صفحة الخطأ 404 في حال كتابة مسار غير موجود */}
+          <Route path="*" element={
+            <div className="flex h-screen items-center justify-center font-bold text-gray-500">
+              404 - الصفحة غير موجودة
+            </div>
+          } />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 }
 
