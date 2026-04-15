@@ -1,109 +1,137 @@
 import React from 'react';
 import productsData from '../data/products.json';
-import { ShoppingBag, Star, ExternalLink, Tag } from 'lucide-react';
+import { ShoppingBag, Star, ExternalLink, Box } from 'lucide-react';
 
 const ProductsPage = () => {
-  // دالة للتأكد من أن رابط الصورة يعمل بشكل صحيح
-  const formatImageUrl = (url) => {
-    if (!url) return "https://via.placeholder.com/300"; // صورة بديلة في حال عدم وجود رابط
-    if (url.startsWith('//')) return `https:${url}`; // إذا كان الرابط يبدأ بـ // أضف https:
-    return url;
+  // دالة متطورة لإصلاح روابط الصور المكسورة في AliExpress
+  const fixImageUrl = (url) => {
+    if (!url) return "https://via.placeholder.com/300?text=No+Image";
+    // إزالة أي مسافات أو رموز غريبة وإضافة البروتوكول
+    let cleanedUrl = url.trim();
+    if (cleanedUrl.startsWith('//')) {
+      cleanedUrl = 'https:' + cleanedUrl;
+    } else if (!cleanedUrl.startsWith('http')) {
+      cleanedUrl = 'https://' + cleanedUrl;
+    }
+    return cleanedUrl;
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7f9] pb-12 font-sans" dir="rtl">
-      {/* تنسيق CSS صارم لتوحيد الأحجام ومنع التمدد الخاطئ */}
+    <div className="min-h-screen bg-fixed text-right pb-12 font-sans" dir="rtl" 
+         style={{ 
+           backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // خلفية ملونة لإظهار تأثير الزجاج
+           minHeight: '100vh' 
+         }}>
+      
       <style>{`
+        .glass-card {
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(15px);
+          -webkit-backdrop-filter: blur(15px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 24px;
+          transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: translateY(-5px);
+          border: 1px solid rgba(255, 255, 255, 0.5);
+        }
         .product-grid {
           display: grid;
-          grid-template-columns: repeat(2, 1fr); /* عمودين في الموبايل */
-          gap: 12px;
-          padding: 12px;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 15px;
+          padding: 15px;
         }
         @media (min-width: 768px) {
           .product-grid {
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* توزيع تلقائي في الشاشات الكبيرة */
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 25px;
           }
         }
-        .image-box {
+        .img-container {
           width: 100%;
-          aspect-ratio: 1 / 1; /* جعل الصورة مربعة تماماً */
+          aspect-ratio: 1/1;
+          background: rgba(255, 255, 255, 0.5);
+          border-radius: 20px;
           overflow: hidden;
-          background-color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
-        .image-box img {
+        .img-container img {
           width: 100%;
           height: 100%;
-          object-fit: contain; /* عرض المنتج بالكامل داخل المربع دون قص أو تمطيط */
+          object-fit: contain; /* لضمان عدم قص أجزاء المنتج */
         }
-        .title-clamp {
+        .title-line {
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          height: 2.5rem; /* توحيد ارتفاع النص */
-          font-size: 0.8rem;
-          line-height: 1.25rem;
-          font-weight: 700;
-          margin: 8px 0;
+          height: 2.6rem;
+          color: white;
+          font-weight: bold;
+          font-size: 0.85rem;
+          margin-top: 10px;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
       `}</style>
 
-      {/* Header */}
-      <nav className="bg-white shadow-sm sticky top-0 z-50 px-4 py-3 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
-              <ShoppingBag className="text-white" size={20} />
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 p-4">
+        <div className="max-w-7xl mx-auto glass-card py-3 px-6 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <ShoppingBag className="text-white" size={24} />
             </div>
-            <h1 className="text-xl font-black text-gray-800">رقة ستور</h1>
+            <h1 className="text-xl font-black text-white">رقة ستور</h1>
           </div>
-          <div className="bg-green-50 px-3 py-1 rounded-full flex items-center gap-2 border border-green-100">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            <span className="text-[10px] font-bold text-green-700">متصل الآن</span>
+          <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full border border-white/30">
+            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            <span className="text-xs font-bold text-white">متصل الآن</span>
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto mt-4">
+      <main className="max-w-7xl mx-auto mt-6 px-4">
         <div className="product-grid">
           {productsData.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col">
+            <div key={item.id} className="glass-card p-3 flex flex-col h-full">
               
-              {/* قسم الصورة */}
-              <div className="image-box relative p-2 border-b border-gray-50">
+              {/* Image Section */}
+              <div className="img-container shadow-inner">
                 <img 
-                  src={formatImageUrl(item.image_url)} 
-                  alt={item.name} 
+                  src={fixImageUrl(item.image_url)} 
+                  alt={item.name}
+                  onError={(e) => { e.target.src = "https://via.placeholder.com/300?text=Image+Error"; }}
                 />
-                <div className="absolute top-2 right-2">
-                  <span className="bg-orange-500 text-white text-[8px] px-2 py-0.5 rounded font-bold uppercase">
-                    {item.category}
-                  </span>
-                </div>
               </div>
 
-              {/* تفاصيل المنتج */}
-              <div className="p-3 flex flex-col flex-grow">
-                {/* تقييم افتراضي */}
-                <div className="flex items-center gap-1 mb-1 text-yellow-400">
-                   {[...Array(5)].map((_, i) => <Star key={i} size={10} fill="currentColor" />)}
+              {/* Content Section */}
+              <div className="flex flex-col flex-grow mt-3">
+                <div className="flex justify-between items-center">
+                  <span className="bg-white/30 text-white text-[9px] px-2 py-0.5 rounded-md font-bold backdrop-blur-sm border border-white/20">
+                    {item.category}
+                  </span>
+                  <div className="flex text-yellow-300">
+                    <Star size={10} fill="currentColor" />
+                    <Star size={10} fill="currentColor" />
+                    <Star size={10} fill="currentColor" />
+                  </div>
                 </div>
 
-                {/* الاسم من ملف JSON */}
-                <h3 className="title-clamp text-gray-800 text-right">
+                <h3 className="title-line">
                   {item.name}
                 </h3>
 
-                {/* السعر والزر */}
-                <div className="mt-auto pt-2 border-t border-gray-50 flex items-center justify-between">
-                  <div>
-                    <span className="text-[9px] text-gray-400 block font-bold">السعر</span>
-                    <div className="flex items-baseline gap-0.5">
-                      <span className="text-lg font-black text-gray-900">{item.price}</span>
-                      <span className="text-[10px] font-bold text-gray-500">{item.currency}</span>
+                <div className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between">
+                  <div className="text-white">
+                    <span className="text-[10px] opacity-70 block mb-0.5">السعر</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xl font-black">{item.price}</span>
+                      <span className="text-[10px] font-medium opacity-80">{item.currency}</span>
                     </div>
                   </div>
 
@@ -111,9 +139,9 @@ const ProductsPage = () => {
                     href={item.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="bg-gray-900 hover:bg-orange-600 text-white p-2 rounded-lg transition-all"
+                    className="w-10 h-10 bg-white text-indigo-600 rounded-xl flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
                   >
-                    <ExternalLink size={16} />
+                    <ExternalLink size={18} />
                   </a>
                 </div>
               </div>
