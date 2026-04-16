@@ -1,6 +1,7 @@
 import React from 'react';
+// تحديث المسار لضمان استيراد البيانات من src/data/products.json
 import productsData from '../data/products.json';
-import { ShoppingBag, Star, ArrowUpLeft, Tag, ShoppingCart } from 'lucide-react';
+import { ShoppingBag, Star, ShoppingCart } from 'lucide-react';
 
 const ProductsPage = () => {
   // دالة متطورة لضمان عمل صور AliExpress
@@ -9,7 +10,6 @@ const ProductsPage = () => {
     let link = url.trim();
     // إذا كان الرابط يبدأ بـ // أضف https:
     if (link.startsWith('//')) link = 'https:' + link;
-    // التأكد من أن الرابط لا يحتوي على مسافات زائدة
     return link;
   };
 
@@ -24,17 +24,16 @@ const ProductsPage = () => {
         }
         .products-grid {
           display: grid;
-          /* جعل الكروت عريضة وواضحة */
           grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
           gap: 25px;
         }
         @media (max-width: 640px) {
           .products-grid {
-            grid-template-columns: repeat(1, 1fr); /* كارد واحد عريض جداً في الموبايل */
+            grid-template-columns: repeat(1, 1fr);
           }
         }
         .clean-transparent-card {
-          background: rgba(255, 255, 255, 0.03); /* شفافية نقية بدون ضباب */
+          background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 28px;
           transition: all 0.4s ease;
@@ -47,14 +46,14 @@ const ProductsPage = () => {
         }
         .fixed-img-container {
           width: 100%;
-          height: 280px; /* زيادة حجم الصورة */
+          height: 280px;
           background: #f8fafc;
           position: relative;
         }
         .fixed-img-container img {
           width: 100%;
           height: 100%;
-          object-fit: contain; /* عرض المنتج كاملاً دون قص */
+          object-fit: contain;
           padding: 10px;
         }
         .title-style {
